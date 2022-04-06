@@ -37,24 +37,40 @@ def lock_vm() -> virtualbox.Session:
     return vs
 
 
-def create(vm_name: str):
-    # Removing special Characters from the folder name
-    folder_vm_name = ''.join(e for e in vm_name if e.isalnum())
-    # Creating the folder and setting up the vagrant files
-    os.system(f'mkdir {folder_vm_name} & cd {folder_vm_name} & vagrant init {vm_name}')
-    # Trying to get the VM up, using subprocess module to read the output of the console
-    process = subprocess.Popen('vagrant up',
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE,
-                               cwd=f'./{folder_vm_name}')
-    stdout, stderr = process.communicate()
-    # In case the box isn't found in vagrant
-    if "could not be found." in stdout.decode('utf-8'):
-        os.system(f'rmdir /s /q {folder_vm_name}')
-        print('This box doesn\'t exist, files have been deleted.')
+def create(vm_name: str = None):
+    if vm_name is not None:
+        # Removing special Characters from the folder name
+        folder_vm_name = ''.join(e for e in vm_name if e.isalnum())
+        # Creating the folder and setting up the vagrant files
+        os.system(f'mkdir {folder_vm_name} & cd {folder_vm_name} & vagrant init {vm_name}')
+        # Trying to get the VM up, using subprocess module to read the output of the console
+        process = subprocess.Popen('vagrant up',
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE,
+                                   cwd=f'./{folder_vm_name}')
+        stdout, stderr = process.communicate()
+        # In case the box isn't found in vagrant
+        if "could not be found." in stdout.decode('utf-8'):
+            os.system(f'rmdir /s /q {folder_vm_name}')
+            print('This box doesn\'t exist, files have been deleted.')
+            return
+
+        print('VM has been create thru vagrant!')
         return
 
-    print('VM has been create thru vagrant!')
+    # Get VBox instance
+    vbox = virtualbox.VirtualBox()
+    # Create the machine
+    vm = vbox.create_machine(name="test_vm",
+                             os_type_id="Ubuntu_64",
+                             settings_file="",
+                             groups=[],
+                             flags=""
+                             )
+    # Register the machine to be used
+    vbox.register_machine(vm)
+
+    print('Empty VM has been create!')
 
 
 def start():

@@ -17,8 +17,9 @@ def delete():
     # Get the installed VM
     vm = get_machine(vbox)
     # Let the user know the machine has been deleted and run the command for that
-    vm.unregister(virtualbox.library.CleanupMode.full)
     print(f'Virtual machine: {vm.name} has been deleted!')
+    # Thanks to Carla for the command! Was using unregister before
+    vm.remove()
 
 
 def lock_vm() -> virtualbox.Session:

@@ -1,10 +1,24 @@
 import virtualbox
 import fire
+from pick import pick
+import os
+import subprocess
 
 
-def get_machine(box: virtualbox.VirtualBox):
+def get_machine(box: virtualbox.VirtualBox) -> virtualbox.library.IMachine:
     """:returns: A Virtualbox Instance"""
-    return box.find_machine("UBUNTU2004LTS_default_1649164272934_78585")
+    option, i = pick([f"{m.name} | {m.state}" for m in box.machines], "Please select the VM.")
+    return box.find_machine(option.split(' ')[0])
+
+
+def delete():
+    # Make a VBox Instance
+    vbox = virtualbox.VirtualBox()
+    # Get the installed VM
+    vm = get_machine(vbox)
+    # Let the user know the machine has been deleted and run the command for that
+    vm.unregister(virtualbox.library.CleanupMode.full)
+    print(f'Virtual machine: {vm.name} has been deleted!')
 
 
 def lock_vm() -> virtualbox.Session:
@@ -22,6 +36,26 @@ def lock_vm() -> virtualbox.Session:
     return vs
 
 
+def create(vm_name: str):
+    # Removing special Characters from the folder name
+    folder_vm_name = ''.join(e for e in vm_name if e.isalnum())
+    # Creating the folder and setting up the vagrant files
+    os.system(f'mkdir {folder_vm_name} & cd {folder_vm_name} & vagrant init {vm_name}')
+    # Trying to get the VM up, using subprocess module to read the output of the console
+    process = subprocess.Popen('vagrant up',
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE,
+                               cwd=f'./{folder_vm_name}')
+    stdout, stderr = process.communicate()
+    # In case the box isn't found in vagrant
+    if "could not be found." in stdout.decode('utf-8'):
+        os.system(f'rmdir /s /q {folder_vm_name}')
+        print('This box doesn\'t exist, files have been deleted.')
+        return
+
+    print('VM has been create thru vagrant!')
+
+
 def start():
     # Make a VBox Instance
     vbox = virtualbox.VirtualBox()
@@ -32,6 +66,7 @@ def start():
     # Start the VM and wait for it to finish
     progress = vm.launch_vm_process(vs, "headless", [])
     progress.wait_for_completion(-1)
+    print(f'VM {vm.name} is up and running!')
 
 
 def screenshot():
@@ -55,6 +90,8 @@ def off():
     # Turning it off
     vs.console.power_down()
 
+    print('VM has been turned off!')
+
 
 def main():
     # Using a Library from Google, turns the script into a CLI tool
@@ -62,7 +99,9 @@ def main():
         'off': off,
         'screenshot': screenshot,
         'ss': screenshot,
-        'start': start
+        'start': start,
+        'create': create,
+        'delete': delete,
     })
 
 

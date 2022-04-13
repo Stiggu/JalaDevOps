@@ -1,0 +1,24 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrant multi-machine sample setup
+
+Vagrant.configure("2") do |config|
+  config.vm.define :ubuntu do |ubuntu|
+    ubuntu.vm.box = "generic/ubuntu2004"
+    ubuntu.vm.synced_folder "data", "/home/vagrant"
+    ubuntu.vm.network "public_network", ip: "192.168.1.21"
+    ubuntu.vm.network :private_network, ip: "192.168.2.21"
+    ubuntu.vm.network :forwarded_port, guest: 22, host: 2100, id: 'ssh'
+    ubuntu.vm.hostname = "ubuntu"
+  end
+
+  config.vm.define :fedora do |fedora|
+    fedora.vm.box = "generic/fedora35"
+    fedora.vm.synced_folder "data", "/home/vagrant"
+    fedora.vm.network "public_network", ip: "192.168.1.22"
+    fedora.vm.network :private_network, ip: "192.168.2.22"
+    fedora.vm.network :forwarded_port, guest: 22, host: 2200, id: 'ssh'
+    fedora.vm.hostname = "fedora"
+  end
+end

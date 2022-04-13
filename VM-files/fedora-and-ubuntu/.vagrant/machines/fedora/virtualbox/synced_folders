@@ -1,1 +1,1 @@
-{"virtualbox":{"/home/vagrant":{"guestpath":"/home/vagrant","hostpath":"D:/Programming/JalaSoftBootCamp/JalaDevOps/vm scratch files/fedora-and-ubuntu/data","disabled":false,"__vagrantfile":true}}}
+{"virtualbox":{"/home/vagrant":{"guestpath":"/home/vagrant","hostpath":"D:/Programming/JalaSoftBootCamp/JalaDevOps/VM-files/fedora-and-ubuntu/data","disabled":false,"__vagrantfile":true}}}

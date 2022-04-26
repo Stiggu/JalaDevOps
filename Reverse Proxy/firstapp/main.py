@@ -26,7 +26,7 @@ async def home():
     html = '''<!DOCTYPE html>
 <html>
    <body>
-       boop
+       first app
    </body>
 </html>'''
     return HTMLResponse(html)
